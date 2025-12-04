@@ -1,6 +1,7 @@
 module TypeChecker where 
 
 import Lexer 
+import AST
 
 type Ctx = [(String, Ty)]
 
@@ -11,11 +12,15 @@ typeof ctx (Num n) = Just TNum
 typeof ctx (Add e1 e2) = case (typeof ctx e1, typeof ctx e2) of 
                            (Just TNum, Just TNum) -> Just TNum 
                            _                      -> Nothing
--- Implementar typeof para Times 
+typeof ctx (Times e1 e2) = case (typeof ctx e1, typeof ctx e2) of
+                           (Just TNum, Just TNum) -> Just TNum
+                           _                      -> Nothing
 typeof ctx (And e1 e2) = case (typeof ctx e1, typeof ctx e2) of 
                            (Just TBool, Just TBool) -> Just TBool 
                            _                        -> Nothing
--- Implementar typeof para Or 
+typeof ctx (Or e1 e2) = case (typeof ctx e1, typeof ctx e2) of 
+                           (Just TBool, Just TBool) -> Just TBool 
+                           _                        -> Nothing
 typeof ctx (If e e1 e2) = case typeof ctx e of 
                             Just TBool -> case (typeof ctx e1, typeof ctx e2) of 
                                             (Just t1, Just t2) | t1 == t2  -> Just t1 

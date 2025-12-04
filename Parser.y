@@ -2,6 +2,8 @@
 module Parser where 
 
 import Lexer 
+import AST
+
 }
 
 %name parser 

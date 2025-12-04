@@ -1,6 +1,7 @@
 module Main where 
 
 import Lexer 
+import AST
 import Parser 
 import TypeChecker 
 import Interpreter 
