@@ -3,7 +3,7 @@ module AST where
 data Expr = Num Int 
           | BTrue 
           | BFalse 
-          | Add Expr Expr 
+          | Add Expr Expr
           | Times Expr Expr 
           | And Expr Expr 
           | Or Expr Expr 
