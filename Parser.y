@@ -49,6 +49,7 @@ Exp     : num                               { Num $1 }
         | Exp "&&" Exp                      { And $1 $3 }
         | Exp "||" Exp                      { Or $1 $3 }
         | '(' Exp ')'                       { Paren $2 }
+        | Exp Exp                           { App $1 $2 }
         | var                               { Var $1 }
         | "\\" var ':' Ty '.' Exp           { Lam $2 $4 $6 }
         | if Exp then Exp else Exp          { If $2 $4 $6 }
