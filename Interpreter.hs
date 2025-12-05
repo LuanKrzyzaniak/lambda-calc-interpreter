@@ -1,5 +1,6 @@
 module Interpreter where 
 
+import AST
 import Lexer 
 import Parser 
 
@@ -8,6 +9,8 @@ isValue BTrue  = True
 isValue BFalse = True 
 isValue (Num _) = True 
 isValue (Lam _ _ _) = True 
+isValue Nil = True
+isValue (Cons h t) = isValue h && isValue t
 isValue _ = False 
 
 subst :: String -> Expr -> Expr -> Expr 
@@ -17,28 +20,45 @@ subst x s y@(Var v) = if x == v then
                         y 
 subst x s (Num n) = (Num n)
 subst x s BTrue = BTrue 
-subst x s BFalse = BFalse 
+subst x s BFalse = BFalse
+subst x s Nil = Nil
 subst x s (Lam y tp t1) = Lam y tp (subst x s t1)
 subst x s (App t1 t2) = App (subst x s t1) (subst x s t2) 
 subst x s (Add t1 t2) = Add (subst x s t1) (subst x s t2) 
+subst x s (Times t1 t2) = Times (subst x s t1) (subst x s t2)
 subst x s (And t1 t2) = And (subst x s t1) (subst x s t2) 
--- Completar subst para outros termos da linguagem
+subst x s (Or t1 t2) = Or (subst x s t1) (subst x s t2)
+subst x s (Paren e) = Paren (subst x s e)
+subst x s (If c t f) = If (subst x s c) (subst x s t) (subst x s f)
+subst x s (Cons h t) = Cons (subst x s h) (subst x s t)
 
 step :: Expr -> Expr 
 step (Add (Num n1) (Num n2)) = Num (n1 + n2)
 step (Add (Num n1) e2) = let e2' = step e2
                            in Add (Num n1) e2' 
 step (Add e1 e2) = Add (step e1) e2 
--- Implementar step para Times
+step (Times (Num n1) (Num n2)) = Num (n1 * n2)
+step (Times (Num n1) e2) = let e2' = step e2
+                           in Times (Num n1) e2' 
+step (Times e1 e2) = Times (step e1) e2 
 step (And BFalse e2) = BFalse 
 step (And BTrue e2) = e2 
 step (And e1 e2) = And (step e1) e2 
--- Implementar step para Or
--- Implementar step para If
+step (Or BFalse e2) = e2 
+step (Or BTrue e2) = BTrue
+step (Or e1 e2) = Or (step e1) e2
+step (If BTrue t _) = t
+step (If BFalse _ f) = f
+step (If c t f) = If (step c) t f
 step (App (Lam x tp e1) e2) = if (isValue e2) then 
                                 subst x e2 e1 
                               else 
                                 App (Lam x tp e1) (step e2)
+step (App (Paren e) e2) = App e e2
+step (Paren e) = step e
+step (Cons h t)
+  | not (isValue h) = Cons (step h) t
+  | not (isValue t) = Cons h (step t)
 
 eval :: Expr -> Expr
 eval e = if isValue e then 
