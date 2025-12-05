@@ -32,6 +32,8 @@ subst x s (Or t1 t2) = Or (subst x s t1) (subst x s t2)
 subst x s (Paren e) = Paren (subst x s e)
 subst x s (If c t f) = If (subst x s c) (subst x s t) (subst x s f)
 subst x s (Cons h t) = Cons (subst x s h) (subst x s t)
+subst x s (Head e) = Head (subst x s e)
+subst x s (Tail e) = Tail (subst x s e)
 
 step :: Expr -> Expr 
 step (Add Nil Nil) = Nil
