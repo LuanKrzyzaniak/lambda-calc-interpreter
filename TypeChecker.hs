@@ -9,7 +9,7 @@ typeof :: Ctx -> Expr -> Maybe Ty
 typeof ctx BTrue = Just TBool 
 typeof ctx BFalse = Just TBool 
 typeof ctx (Num n) = Just TNum 
-typeof ctx Nil = Just (TList TNum)  -- Assuming empty list of numbers by default
+typeof ctx Nil = Nothing
 typeof ctx (Paren e) = typeof ctx e
 typeof ctx (Add e1 e2) = case (typeof ctx e1, typeof ctx e2) of 
                            (Just TNum, Just TNum) -> Just TNum 
@@ -20,9 +20,11 @@ typeof ctx (Times e1 e2) = case (typeof ctx e1, typeof ctx e2) of
                            _                      -> Nothing
 typeof ctx (And e1 e2) = case (typeof ctx e1, typeof ctx e2) of 
                            (Just TBool, Just TBool) -> Just TBool 
+                           (Just (TList TBool), Just (TList TBool)) -> Just (TList TBool)
                            _                        -> Nothing
 typeof ctx (Or e1 e2) = case (typeof ctx e1, typeof ctx e2) of 
                            (Just TBool, Just TBool) -> Just TBool 
+                           (Just (TList TBool), Just (TList TBool)) -> Just (TList TBool)
                            _                        -> Nothing
 typeof ctx (If e e1 e2) = case typeof ctx e of 
                             Just TBool -> case (typeof ctx e1, typeof ctx e2) of 
@@ -42,6 +44,7 @@ typeof ctx (App e1 e2) = case typeof ctx e1 of
                            _ -> Nothing 
 typeof ctx (Cons h t) = case (typeof ctx h, typeof ctx t) of 
                            (Just th, Just (TList tt)) | th == tt -> Just (TList th) 
+                           (Just th, Nothing) -> Just (TList th)
                            _ -> Nothing
 typeof ctx (Head e) = case (typeof ctx e) of
                          (Just (TList t)) -> Just t
@@ -50,8 +53,8 @@ typeof ctx (Tail e) = case (typeof ctx e) of
                          (Just (TList t)) -> Just (TList t)
                          _                -> Nothing
 typeof ctx (Concat t1 t2) = case (typeof ctx t1, typeof ctx t2) of
-                              (Just (TList tt1), Just (TList tt2)) -> Just (TList tt1)
-                              _                                    -> Nothing
+                              (Just (TList tt1), Just (TList tt2)) | tt1 == tt2 -> Just (TList tt1)
+                              _                                                 -> Nothing
 
 typecheck :: Expr -> Expr 
 typecheck e = case typeof [] e of 

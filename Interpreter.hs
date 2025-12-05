@@ -40,6 +40,22 @@ step (Add (Cons _ _) Nil) =
   error "xiu, perdeu no argumento"
 step (Add Nil (Cons _ _)) =
   error "xiu, perdeu no argumento"
+step (And Nil Nil) = Nil
+step (And (Cons BTrue xs) (Cons BTrue ys)) = Cons BTrue (And xs ys)
+step (And (Cons BTrue xs) (Cons BFalse ys)) = Cons BFalse (And xs ys)
+step (And (Cons BFalse xs) (Cons _ ys)) = Cons BFalse (And xs ys)
+step (And (Cons _ _) Nil) =
+  error "xiu, perdeu no argumento"
+step (And Nil (Cons _ _)) =
+  error "xiu, perdeu no argumento"
+step (Or Nil Nil) = Nil
+step (Or (Cons BTrue xs) (Cons _ ys)) = Cons BTrue (Or xs ys)
+step (Or (Cons BFalse xs) (Cons BFalse ys)) = Cons BFalse (Or xs ys)
+step (Or (Cons BFalse xs) (Cons BTrue ys)) = Cons BTrue (Or xs ys)
+step (Or (Cons _ _) Nil) =
+  error "xiu, perdeu no argumento"
+step (Or Nil (Cons _ _)) =
+  error "xiu, perdeu no argumento"
 step (Add h1 h2)
   | not (isValue h1) = Add (step h1) h2
   | not (isValue h2) = Add h1 (step h2)
