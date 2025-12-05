@@ -1,0 +1,32 @@
+-- Lambda Num
+run "(\\x:Num.x+3)5"   
+run "(\\x:Num.x+3) (\\y:Num.y+5) 10"  
+
+-- Lambda Bool
+run "(\\x:Bool.true && x) false"
+run "(\\x:Bool.true || x) false"
+run "(\\x:Bool.true || x) (\\y:Bool.false && y) false"
+
+-- Lambda List
+run "(\\x:Num.[1, x+1, x+3]) 5"
+run "(\\x:Num.head[1, x+1, x+3]) 5"
+run "(\\x:Num.tail[1, x+1, x+3]) 5"
+
+-- Head, tail, concat
+run "tail([1, 2, 3])"
+run "head([1, 2, 3])"
+run "tail([1, 2, 3] ++ [5,6])"
+
+-- Sum List
+run "[1,2,3] + [3,2,1]"
+run "[1,2,3] + [3,2,1,3]"
+-- above must fail
+
+run "tail([1, 2, 3] ++ head [5,6])"
+
+-- Lambda Bool List
+run "(\\x:Bool.[false, true, false, x]) true"
+run "(\\x:Bool.[false, true, false] ++ [x]) true"
+
+-- Lambda Num List
+run "(\\x:Num.[x, x+1, x+3]) ((\\y:Num.y+4) 3)"
