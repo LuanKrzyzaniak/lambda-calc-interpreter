@@ -54,6 +54,7 @@ typeof ctx (Tail e) = case (typeof ctx e) of
                          _                -> Nothing
 typeof ctx (Concat t1 t2) = case (typeof ctx t1, typeof ctx t2) of
                               (Just (TList tt1), Just (TList tt2)) | tt1 == tt2 -> Just (TList tt1)
+                              (Just (TList tt), Just TNum) | tt == TNum         -> Just (TList tt)
                               _                                                 -> Nothing
 
 typecheck :: Expr -> Expr 

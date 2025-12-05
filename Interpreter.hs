@@ -95,12 +95,15 @@ step (Tail e)
   | not (isValue e) = Tail (step e)
 step (Concat (Cons h1 t1) (Cons h2 t2))
   | isValue (Cons h1 t1) && isValue (Cons h2 t2) = Cons h1 (Concat t1 (Cons h2 t2))
+step (Concat (Cons h t) (Num n))
+  | isValue (Cons h t) = Cons h (Concat t (Num n))
 step (Concat e1 e2)
   | not (isValue e1) = Concat (step e1) e2
   | not (isValue e2) = Concat e1 (step e2)
-step (Concat Nil e2)
-  | isValue (e2) = e2
-  | otherwise = Concat Nil (step e2)
+step (Concat Nil e2) = case e2 of
+                        Cons _ _  -> e2
+                        Num n     -> Cons (Num n) Nil
+                        _         -> Concat Nil (step e2)
 step (Concat e1 Nil)
   | isValue (e1) = e1
   | otherwise = Concat (step e1) Nil
