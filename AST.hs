@@ -14,6 +14,9 @@ data Expr = Num Int
           | App Expr Expr 
           | Cons Expr Expr
           | Nil
+          | Head Expr
+          | Tail Expr
+          | Concat Expr Expr
           deriving Show 
 
 data Ty = TNum 

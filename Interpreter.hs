@@ -33,6 +33,16 @@ subst x s (If c t f) = If (subst x s c) (subst x s t) (subst x s f)
 subst x s (Cons h t) = Cons (subst x s h) (subst x s t)
 
 step :: Expr -> Expr 
+step (Add Nil Nil) = Nil
+step (Add (Cons (Num x) xs) (Cons (Num y) ys)) =
+  Cons (Num (x + y)) (Add xs ys)
+step (Add (Cons _ _) Nil) =
+  error "xiu, perdeu no argumento"
+step (Add Nil (Cons _ _)) =
+  error "xiu, perdeu no argumento"
+step (Add h1 h2)
+  | not (isValue h1) = Add (step h1) h2
+  | not (isValue h2) = Add h1 (step h2)
 step (Add (Num n1) (Num n2)) = Num (n1 + n2)
 step (Add (Num n1) e2) = let e2' = step e2
                            in Add (Num n1) e2' 
@@ -59,6 +69,27 @@ step (Paren e) = step e
 step (Cons h t)
   | not (isValue h) = Cons (step h) t
   | not (isValue t) = Cons h (step t)
+step (Head Nil) = Nil
+step (Head (Cons h t)) = h
+step (Head e)
+  | not (isValue e) = Head (step e)
+step (Tail Nil) = Nil
+step (Tail (Cons h t)) = t
+step (Tail e)
+  | not (isValue e) = Tail (step e)
+step (Concat (Cons h1 t1) (Cons h2 t2))
+  | isValue (Cons h1 t1) && isValue (Cons h2 t2) = Cons h1 (Concat t1 (Cons h2 t2))
+step (Concat e1 e2)
+  | not (isValue e1) = Concat (step e1) e2
+  | not (isValue e2) = Concat e1 (step e2)
+step (Concat Nil e2)
+  | isValue (e2) = e2
+  | otherwise = Concat Nil (step e2)
+step (Concat e1 Nil)
+  | isValue (e1) = e1
+  | otherwise = Concat (step e1) Nil
+step (Concat (Cons h1 t1) e2)
+  | isValue (Cons h1 t1) && isValue (e2) = Cons h1 (Concat t1 e2)
 
 eval :: Expr -> Expr
 eval e = if isValue e then 

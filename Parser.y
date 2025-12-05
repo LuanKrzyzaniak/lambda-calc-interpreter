@@ -38,6 +38,9 @@ import AST
     Num             { TokenTNum }
     Bool            { TokenTBool }
     var             { TokenVar $$ }
+    head            { TokenHead }
+    tail            { TokenTail }
+    "++"            { TokenConcat }
 
 %% 
 
@@ -54,6 +57,9 @@ Exp     : num                               { Num $1 }
         | "\\" var ':' Ty '.' Exp           { Lam $2 $4 $6 }
         | if Exp then Exp else Exp          { If $2 $4 $6 }
         | '[' ListElements ']'              { $2 }
+        | head Exp                          { Head $2 }
+        | tail Exp                          { Tail $2 }
+        | Exp "++" Exp                      { Concat $1 $3 }
 
 Ty      : Num                               { TNum }
         | Bool                              { TBool }
@@ -67,6 +73,6 @@ ListElements    :                           { Nil }
 { 
 
 parseError :: [Token] -> a 
-parseError _ = error "Syntax error!"
+parseError _ = error "nao fez sentido, isso nao existe"
 
 }

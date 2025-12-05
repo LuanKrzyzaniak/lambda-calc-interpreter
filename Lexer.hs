@@ -24,10 +24,14 @@ data Token = TokenNum Int
            | TokenIf
            | TokenThen
            | TokenElse
+           | TokenHead
+           | TokenTail
+           | TokenConcat
            deriving Show 
 
 lexer :: String -> [Token]
 lexer [] = []
+lexer ('+':'+':cs) = TokenConcat : lexer cs
 lexer ('+':cs) = TokenPlus : lexer cs 
 lexer ('*':cs) = TokenTimes : lexer cs 
 lexer ('&':'&':cs) = TokenAnd : lexer cs 
@@ -44,7 +48,7 @@ lexer (',':cs) = TokenComma : lexer cs
 lexer (c:cs) | isSpace c = lexer cs 
              | isDigit c = lexNum (c:cs)
              | isAlpha c = lexKw (c:cs)
-lexer _ = error "Lexical error"
+lexer _ = error "escreveu hieroglifo"
 
 lexNum cs = case span isDigit cs of 
               (num, rest) -> TokenNum (read num) : lexer rest 
@@ -57,4 +61,6 @@ lexKw cs = case span isAlpha cs of
              ("if", rest) -> TokenIf : lexer rest
              ("then", rest) -> TokenThen : lexer rest
              ("else", rest) -> TokenElse : lexer rest
+             ("head", rest) -> TokenHead : lexer rest
+             ("tail", rest) -> TokenTail : lexer rest
              (var, rest) -> TokenVar var: lexer rest
